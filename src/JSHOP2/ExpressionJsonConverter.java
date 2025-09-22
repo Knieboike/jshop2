@@ -44,14 +44,23 @@ public class ExpressionJsonConverter {
     }
 
     private static String createConjunctionExpression(LogicalExpressionConjunction conjunction, InternalDomain domain) {
+        LogicalExpression[] expressions = conjunction.getExpression();
         JsonBuilder builder = new JsonBuilder()
-            .startObject()
-            .addProperty("type", "and");
+                .startObject()
+                .addProperty("type", "and");
 
-        builder.addRawProperty("conjuncts", createExpressionArray(conjunction.getExpression(), domain));
+        if (expressions.length == 2) {
+            // Fall: genau zwei Ausdrücke → left/right
+            builder.addRawProperty("left", expressionToJson(expressions[0], domain));
+            builder.addRawProperty("right", expressionToJson(expressions[1], domain));
+        } else {
+            // Fall: mehr als zwei → conjuncts-Array
+            builder.addRawProperty("conjuncts", createExpressionArray(expressions, domain));
+        }
 
         return builder.endObject().toString();
     }
+
 
     private static String createDisjunctionExpression(LogicalExpressionDisjunction disjunction, InternalDomain domain) {
         JsonBuilder builder = new JsonBuilder()
