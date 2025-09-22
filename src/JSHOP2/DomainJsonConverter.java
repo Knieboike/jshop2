@@ -383,7 +383,7 @@ public class DomainJsonConverter {
     // TaskList strukturiert parsen
     private static String taskListToJson(TaskList taskList, InternalDomain domain) {
         JsonBuilder builder = new JsonBuilder().startArray();
-
+//TODO: Currently only empty tasks
         try {
             TaskAtom tasks = taskList.getTask();
             if (tasks == null) {
@@ -409,7 +409,6 @@ public class DomainJsonConverter {
         return builder.endArray().toString();
     }
 
-    // TaskList Element strukturiert parsen
     private static String taskElementToJson(Object taskElement, InternalDomain domain) {
         try {
             if (taskElement instanceof Predicate) {
@@ -459,12 +458,22 @@ public class DomainJsonConverter {
 
             Vector<String> compoundTasks = domain.getCompoundTasks();
             if (headIndex >= 0 && headIndex < compoundTasks.size()) {
-                return compoundTasks.get(headIndex);
+                String taskName = compoundTasks.get(headIndex);
+                // Remove exclamation mark prefix if present
+                if (taskName.startsWith("!")) {
+                    taskName = taskName.substring(1);
+                }
+                return taskName;
             }
 
             Vector<String> primitiveTasks = domain.getPrimitiveTasks();
             if (headIndex >= 0 && headIndex < primitiveTasks.size()) {
-                return primitiveTasks.get(headIndex);
+                String taskName = primitiveTasks.get(headIndex);
+                // Remove exclamation mark prefix if present
+                if (taskName.startsWith("!")) {
+                    taskName = taskName.substring(1);
+                }
+                return taskName;
             }
 
             return "task_" + headIndex;

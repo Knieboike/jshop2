@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: "JSHOP2.g" -> "JSHOP2Lexer.java"$
+// $ANTLR 2.7.5 (20050128): "JSHOP2.g" -> "JSHOP2Lexer.java"$
 
   package JSHOP2;
 

@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: "JSHOP2.g" -> "JSHOP2Parser.java"$
+// $ANTLR 2.7.5 (20050128): "JSHOP2.g" -> "JSHOP2Parser.java"$
 
   package JSHOP2;
 
@@ -34,6 +34,27 @@ public class JSHOP2Parser extends antlr.LLkParser       implements JSHOP2TokenTy
 
   //-- To store the maximum number of the variables seen in any variable scope.
   private int varsMaxSize;
+
+  public int getVarsMaxSize() {
+  		 return varsMaxSize;
+  	 }
+
+  //-- Method to transfer variable names to domain
+  public void transferVariableNamesToDomain() {
+    if (domain != null && vars != null && !vars.isEmpty()) {
+      domain.setVariableNames(vars);
+    }
+  }
+
+  //-- Method to set variable names from domain (for problem parsing)
+  public void setVariableNames(Vector<String> variableNames) {
+    if (vars == null) {
+      vars = new Vector<String>();
+    }
+    vars.clear();
+    vars.addAll(variableNames);
+    System.out.println("DEBUG: Parser received variable names: " + vars);
+  }
 
   //-- The function to initialize this object. It must be called right after
   //-- the constructor.
@@ -356,12 +377,14 @@ public JSHOP2Parser(ParserSharedInputState state) {
 			_cnt11++;
 		} while (true);
 		}
-		
+
+        //-- Transfer variable names to domain BEFORE closing (writing files)
+        transferVariableNamesToDomain();
+
 		//-- Convert the domain description to Java code and write it.
 		domain.close(varsMaxSize);
-		
-		match(RP);
-		match(RP);
+
+        match(RP);
 	}
 	
 	public final void pde() throws RecognitionException, TokenStreamException {
@@ -477,13 +500,16 @@ public JSHOP2Parser(ParserSharedInputState state) {
 		//-- Create the object that represents the method, and add it to the list
 		//-- of the methods in the domain.
 		domain.addMethod(new InternalMethod(p, labels, pres, subs));
-		
+
+		//-- Transfer variable names to domain before clearing vars
+		transferVariableNamesToDomain();
+
 		//-- The scope for the variables in a method is within that method, so as
 		//-- soon as we get out of the method body we should empty our list of
 		//-- variables after updating the value of 'varsMaxSize'.
 		if (vars.size() > varsMaxSize)
 		varsMaxSize = vars.size();
-		
+
 		vars.clear();
 		
 		match(RP);
@@ -873,12 +899,14 @@ public JSHOP2Parser(ParserSharedInputState state) {
 			match(VARID);
 			
 			//-- Add the variable symbol to the variable list.
-			if (!vars.contains(vn.getText().toLowerCase()))
-			vars.add(vn.getText().toLowerCase());
-			
+			String originalVarName = vn.getText(); // Keep original name with ?
+			String normalizedVarName = originalVarName.toLowerCase();
+			if (!vars.contains(normalizedVarName))
+			vars.add(normalizedVarName);
+
 			//-- Create the object that represents this variable symbol.
-			retVal = new TermVariable(vars.indexOf(vn.getText().toLowerCase()));
-			
+			retVal = new TermVariable(vars.indexOf(normalizedVarName));
+
 			break;
 		}
 		case ID:

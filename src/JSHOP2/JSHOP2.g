@@ -40,6 +40,29 @@ options
   //-- To store the maximum number of the variables seen in any variable scope.
   private int varsMaxSize;
 
+  public int getVarsMaxSize() {
+  		 return varsMaxSize;
+  	 }
+
+
+
+   //-- Method to transfer variable names to domain
+   public void transferVariableNamesToDomain() {
+     if (domain != null && vars != null && !vars.isEmpty()) {
+       domain.setVariableNames(vars);
+     }
+   }
+
+   //-- Method to set variable names from domain (for problem parsing)
+   public void setVariableNames(Vector<String> variableNames) {
+     if (vars == null) {
+       vars = new Vector<String>();
+     }
+     vars.clear();
+     vars.addAll(variableNames);
+     System.out.println("DEBUG: Parser received variable names: " + vars);
+   }
+
   //-- The function to initialize this object. It must be called right after
   //-- the constructor.
   public void initialize(JSHOP2Lexer lexerIn, InternalDomain domainIn)
