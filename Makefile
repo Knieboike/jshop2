@@ -1,6 +1,5 @@
-# Detect operating system
 ifeq ($(OS),Windows_NT)
-    # Windows commands
+    # Windows
     RM = del /Q
     RMDIR = rmdir /S /Q
     MV = move
@@ -8,7 +7,7 @@ ifeq ($(OS),Windows_NT)
     SEP = \\
     PATHSEP = ;
 else
-    # Unix/Linux commands
+    # Unix/Linux
     RM = rm -f
     RMDIR = rm -rf
     MV = mv

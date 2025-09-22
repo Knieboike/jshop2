@@ -22,6 +22,10 @@ public class LogicalExpressionDisjunction extends LogicalExpression
   */
   private LogicalExpression[] le;
 
+  public LogicalExpression[] getExpression() {
+    return this.le;
+  }
+
   /** To initialize this disjunction.
    *
    *  @param leIn

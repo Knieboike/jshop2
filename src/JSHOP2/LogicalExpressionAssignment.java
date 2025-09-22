@@ -13,9 +13,17 @@ public class LogicalExpressionAssignment extends LogicalExpression
   */
   private Term t;
 
+    public Term getTerm() {
+        return t;
+    }
+
   /** The index of the variable to be assigned.
   */
   private int whichVar;
+
+  public int getWhichVar() {
+      return whichVar;
+  }
 
   /** To initialize this assignment logical expression.
    *

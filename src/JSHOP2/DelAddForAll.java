@@ -224,7 +224,7 @@ public class DelAddForAll extends DelAddElement
 
   /** To set the number of variables in this <code>ForAll</code> delete/add
    *  element.
-  */
+   */
   public void setVarCount(int varCount)
   {
     exp.setVarCount(varCount);
@@ -233,9 +233,25 @@ public class DelAddForAll extends DelAddElement
       atoms[i].setVarCount(varCount);
   }
 
+  /** Get the logical expression (premise/condition) of this ForAll element.
+   *
+   * @return the logical expression
+   */
+  public LogicalExpression getExpression() {
+    return exp;
+  }
+
+  /** Get the atoms that will be added/deleted by this ForAll element.
+   *
+   * @return the array of predicates/atoms
+   */
+  public Predicate[] getAtoms() {
+    return atoms;
+  }
+
   /** This function produces Java code to create this <code>ForAll</code>
    *  delete/add element.
-  */
+   */
   public String toCode()
   {
     return "new DelAddForAll(" + exp.toCode() + ", atoms" + cnt + ")";

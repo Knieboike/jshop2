@@ -15,7 +15,7 @@ public class InternalOperator extends InternalElement
    *  an array, is used, since at compile time we do not know how many
    *  delete/add elements there will be.
   */
-  private Vector add;
+  private static Vector add;
 
   /** The number of objects already instantiated from this class.
   */
@@ -30,7 +30,7 @@ public class InternalOperator extends InternalElement
    *  an array, is used, since at compile time we do not know how many
    *  delete/add elements there will be.
   */
-  private Vector del;
+  private static Vector del;
 
   /** The logical precondition of this operator.
   */
@@ -266,5 +266,21 @@ public class InternalOperator extends InternalElement
 
     //-- Close the class definition and return the resulting string.
     return s + endl + "}" + endl + endl;
+  }
+
+  public LogicalPrecondition getPre() {
+    return pre;
+  }
+
+  public Term getCost() {
+    return cost;
+  }
+
+  public static Vector getDel() {
+    return del;
+  }
+
+  public static Vector getAdd() {
+    return add;
   }
 }

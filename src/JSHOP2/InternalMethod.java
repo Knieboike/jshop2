@@ -183,4 +183,17 @@ public class InternalMethod extends InternalElement
     //-- resulting string.
     return s + "\t}" + endl + "}" + endl + endl;
   }
+    public Vector<String> getLabels() {
+        return labels;
+    }
+
+    public Vector<LogicalPrecondition> getPres() {
+        return pres;
+    }
+
+    public Vector<TaskList> getSubs() {
+        return subs;
+    }
+
+
 }

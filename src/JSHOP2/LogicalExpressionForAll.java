@@ -13,9 +13,17 @@ public class LogicalExpressionForAll extends LogicalExpression
   */
   private LogicalExpression consequence;
 
+    public LogicalExpression getConsequence() {
+        return consequence;
+    }
+
   /** The premise of this <code>ForAll</code> logical expression.
   */
   private LogicalExpression premise;
+
+    public LogicalExpression getPremise() {
+        return premise;
+    }
 
   /** To initialize this <code>ForAll</code> logical expression.
    *

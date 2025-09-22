@@ -11,7 +11,7 @@ public class LogicalExpressionAtomic extends LogicalExpression
 {
   /** The logical atom.
   */
-  private Predicate logicalAtom;
+  Predicate logicalAtom;
 
   /** To initialize this atomic logical expression.
    *

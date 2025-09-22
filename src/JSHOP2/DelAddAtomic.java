@@ -81,6 +81,15 @@ public class DelAddAtomic extends DelAddElement
     atom.setVarCount(varCount);
   }
 
+  /** To get the atom of this atomic delete/add element.
+   *
+   *  @return the atom predicate
+   */
+  public Predicate getAtom()
+  {
+    return atom;
+  }
+
   /** This function produces Java code to create this atomic delete/add
    *  element.
   */

@@ -23,6 +23,10 @@ public class LogicalPrecondition extends CompileTimeObject
   */
   private LogicalExpression le;
 
+  public LogicalExpression getExpression() {
+    return this.le;
+  }
+
   /** To initialize this logical precondition.
    *
    *  @param leIn
@@ -97,3 +101,4 @@ public class LogicalPrecondition extends CompileTimeObject
     return "(" + le.toCode() + ").setComparator(" + func + ")";
   }
 }
+

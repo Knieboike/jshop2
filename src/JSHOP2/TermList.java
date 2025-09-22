@@ -49,6 +49,32 @@ public class TermList extends Term
       return NIL;
   }
 
+  /** To get the first element of the list.
+   *
+   * @return the first element of the list, or null if the list is NIL
+   */
+  public Term getFirst() {
+    if (list == null) return null;
+    return list.getHead();
+  }
+
+  /** To get the rest of the list (tail).
+   *
+   * @return the rest of the list, or null if the list is NIL
+   */
+  public Term getRest() {
+    if (list == null) return null;
+    return list.getTail();
+  }
+
+  /** To check if this list is empty (NIL).
+   *
+   * @return true if the list is NIL, false otherwise
+   */
+  public boolean isEmpty() {
+    return list == null;
+  }
+
   /** Whether or not another term is equivalent to this list term.
   */
   public boolean equals(Term t)

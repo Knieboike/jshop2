@@ -13,6 +13,10 @@ public class LogicalExpressionNegation extends LogicalExpression
   */
   private LogicalExpression le;
 
+  public LogicalExpression getExpression() {
+    return this.le;
+  }
+
   /** To initialize this negative logical expression.
    *
    *  @param leIn
