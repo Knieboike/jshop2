@@ -180,11 +180,9 @@ public class DomainJsonConverter {
         boolean hasEffects = false;
 
         if (delAddList != null && !delAddList.isEmpty()) {
-            // Check if first element is an Integer (variable index) or actual effect
             Object firstElement = delAddList.get(0);
 
             if (firstElement instanceof Integer) {
-                // Variable reference - this means the list references a variable, not actual effects
                 Integer varIdx = (Integer) firstElement;
                 String variableJson = new JsonBuilder()
                         .startObject()
@@ -195,7 +193,6 @@ public class DomainJsonConverter {
                 builder.addRawArrayElement(variableJson);
                 hasEffects = true;
             } else {
-                // Real list of elements - process all elements
                 for (Object element : delAddList) {
                     if (element instanceof DelAddElement) {
                         String elementJson = effectToJson((DelAddElement) element, domain, effectType);
@@ -205,8 +202,6 @@ public class DomainJsonConverter {
                 }
             }
         }
-
-        // Return null if no effects were found
         return hasEffects ? builder.endArray().toString() : null;
     }
 
@@ -236,7 +231,7 @@ public class DomainJsonConverter {
         String parameters = ParameterJsonConverter.parametersToJsonArray(atom.getParam(), domain);
 
         if ("delete".equals(effectType)) {
-            // Für Delete-Effekte verwende "not" Struktur wie in Scala
+            // Für Delete-Effekte verwende "not" Struktur
             return new JsonBuilder()
                     .startObject()
                     .addProperty("type", "not")

@@ -775,7 +775,6 @@ public class InternalDomain {
     }
 
 
-
     /**
      * The main function that is called to do the compilation.
      *
@@ -847,9 +846,9 @@ public class InternalDomain {
                         // Kopiere die bestehende JSON-Datei zur neuen Ausgabedatei
                         try {
                             java.nio.file.Files.copy(
-                                java.nio.file.Paths.get(jsonFile),
-                                java.nio.file.Paths.get(outputJsonFile),
-                                java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                                    java.nio.file.Paths.get(jsonFile),
+                                    java.nio.file.Paths.get(outputJsonFile),
+                                    java.nio.file.StandardCopyOption.REPLACE_EXISTING
                             );
                         } catch (IOException e) {
                             System.err.println("Fehler beim Kopieren der JSON-Datei: " + e.getMessage());
@@ -1048,6 +1047,7 @@ public class InternalDomain {
         }
         return additional;
     }
+
     /**
      * Sucht nach bestehenden JSON-Dateien im gleichen Verzeichnis wie die Problem-Datei
      */
@@ -1132,6 +1132,7 @@ public class InternalDomain {
         }
         return "var" + index; // fallback to var0, var1, etc.
     }
+
     /**
      * This function returns the <code>Vector</code> where the
      * <code>String</code> names of the variable symbols in this domain are

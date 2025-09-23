@@ -53,7 +53,6 @@ public class JSHOP2Parser extends antlr.LLkParser       implements JSHOP2TokenTy
     }
     vars.clear();
     vars.addAll(variableNames);
-    System.out.println("DEBUG: Parser received variable names: " + vars);
   }
 
   //-- The function to initialize this object. It must be called right after
