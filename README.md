@@ -1,4 +1,4 @@
-How to install and run JSHOP2:
+# How to install and run JSHOP2:
 
 Make sure that Java is installed fully on your computer.
 
@@ -6,11 +6,11 @@ After unzipping the JSHOP2 zipped file in any directory, set the CLASSPATH
 environment variable to include (replacing JSHOP2_DIRECTORY with the directory
 where JSHOP2 is unzipped):
 
-- in Windows:
-  JSHOP2_DIRECTORY\bin\antlr.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;.
+- in **Windows**  
+  ```JSHOP2_DIRECTORY\bin\antlr.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;. ```
 
-- in UNIX:
-  JSHOP2_DIRECTORY/bin/antlr.jar:JSHOP2_DIRECTORY/bin/JSHOP2.jar:.
+- in **UNIX**:  
+  ```JSHOP2_DIRECTORY/bin/antlr.jar:JSHOP2_DIRECTORY/bin/JSHOP2.jar:.```
 
 This is the environment variable Java uses to looks for Java ARchive (jar)
 files used by JSHOP2.
@@ -18,47 +18,49 @@ files used by JSHOP2.
 After making sure the CLASSPATH variable is correctly set, any of these
 commands can be used at the command line:
 
-- make
+- ```make```
   or
-  make c : To compile the JSHOP2 source files and make the needed .jar files.
+  ```make c ```: To compile the JSHOP2 source files and make the needed .jar files.
   This has to be done before JSHOP2 can be run.
 
-- make d : To make the HTML JSHOP2 package documentation out of the source
+- ```make d ```: To make the HTML JSHOP2 package documentation out of the source
   files.
 
-- make 1 : To run the first example, the blocks world domain.
+- ```make 1 ```: To run the first example, the blocks world domain.
   WARNING: This is a very big problem, so it will take a long time to
   solve the problem and display the results.
 
-- make 2 : To run the second example, the basic domain.
+- ```make 2 ```: To run the second example, the basic domain.
 
-- make 3 : To run the third example, the old implementation of the blocks
+- ```make 3 ```: To run the third example, the old implementation of the blocks
   world.
 
-- make 4 : To run the fourth example, the test domain.
+- ```make 4 ```: To run the fourth example, the test domain.
 
-- make 5 : To run the fifth example, the logistics domain.
+- ```make 5 ```: To run the fifth example, the logistics domain.
 
-- make 6 : To run the sixth example, the freecell domain.
+- ```make 6 ```: To run the sixth example, the freecell domain.
 
-- make 7 : To run the seventh example, the propagation domain.
+- ```make 7``` : To run the seventh example, the propagation domain.
 
-- make 8 : To run the eighth example, the forallexample domain.
+- ```make 8 ```: To run the eighth example, the forallexample domain.
 
-- make 9 : To run the ninth example, the rover domain.
+- ```make 9``` : To run the ninth example, the rover domain.
   WARNING: This is a very big problem, so it will take a long time to
   solve the problem and display the results.
 
-- make 10: To run the tenth example, a very small blocks world problem where
+- ```make 10```: To run the tenth example, a very small blocks world problem where
   all plans, rather than just the first one found, are to be returned.
 
-- make 11: To run the eleventh example, the MadRTS domain.
+- ```make 11```: To run the eleventh example, the MadRTS domain.
+
+# How to convert a planning problem to json
 
 To create a json file from a planning problem navigate to the folder where the file is in and use the command:  
-java JSHOP2.InternalDomain basic  
+```java JSHOP2.InternalDomain basic  ```
 This will create a file named basic.json in the current directory.  
 To create a json file from a problem use the command:  
-java JSHOP2.InternalProblem -r problem  
+``` JSHOP2.InternalProblem -r problem  ```
 -----------------------------------------------------------------
 The important files and directories in this release of JSHOP2:
 
@@ -94,8 +96,8 @@ propagate only down in the task network.
 International Planning Competition.  
 ./examples/madrts : A very simple version of the MadRTS game.  
 
-Common Errors: java.lang.ClassNotFoundException: antlr  
-java.lang.NoClassDefFoundError: antlr/CharStreamException  
+```Common Errors: java.lang.ClassNotFoundException: antlr  ```  
+``` java.lang.NoClassDefFoundError: antlr/CharStreamException  ```  
 These errors indicate that the CLASSPATH environment variable is not set  
 correctly. Make sure it includes the path to the antlr.jar and JSHOP.jar file in the bin
 directory of JSHOP2.  
