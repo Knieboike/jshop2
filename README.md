@@ -55,12 +55,12 @@ commands can be used at the command line:
 
 - ```make 11```: To run the eleventh example, the MadRTS domain.
 
-## Convert a planning problem to json  
-To create a json file from a planning problem navigate to the folder where the file is in and use the command:  
-```java JSHOP2.InternalDomain basic  ```
-This will create a file named basic.json in the current directory.
-To create a json file from a problem use the command:  
-``` JSHOP2.InternalProblem -r problem  ```
+## Convert a planning problem to JSON  
+To create a JSON file from a domain file, navigate to the folder where the file is and use the command:  
+```java JSHOP2.InternalDomain *filename*```  
+This will create a file named *filename*.json in the current directory.  
+To extend the JSON file with the problem, use the command:  
+``` JSHOP2.InternalProblem -r *problemname*```
 
 -----------------------------------------------------------------
 ## The important files and directories in this release of JSHOP2:
