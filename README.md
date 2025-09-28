@@ -2,21 +2,21 @@
 
 Make sure that Java is installed fully on your computer.
 
-After unzipping the JSHOP2 zipped file in any directory, set the CLASSPATH
-environment variable to include (replacing JSHOP2_DIRECTORY with the directory
+
+Set the CLASSPATH environment variable to include (replacing JSHOP2_DIRECTORY with the directory
 where JSHOP2 is unzipped):
 
 - in **Windows**  
-  ```JSHOP2_DIRECTORY\bin\antlr.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;. ```
+  ```JSHOP2_DIRECTORY\antlr-2.7.5.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;. ```
 
 - in **UNIX**:  
-  ```JSHOP2_DIRECTORY/bin/antlr.jar:JSHOP2_DIRECTORY/bin/JSHOP2.jar:.```
+  ```JSHOP2_DIRECTORY/antlr-2.7.5.jar:JSHOP2_DIRECTORY/bin/JSHOP2.jar:.```
 
 This is the environment variable Java uses to looks for Java ARchive (jar)
 files used by JSHOP2.
 
 After making sure the CLASSPATH variable is correctly set, any of these
-commands can be used at the command line:
+commands can be used at the command line (make sure make is installed):
 
 - ```make```
   or
@@ -56,11 +56,11 @@ commands can be used at the command line:
 
 # How to convert a planning problem to json
 
-To create a json file from a planning problem navigate to the folder where the file is in and use the command:  
-```java JSHOP2.InternalDomain basic  ```
+To create a json file from a planning problem use the command:  
+```java -cp "src\;antlr.jar" JSHOP2.InternalDomain examples/basic/basic  ```
 This will create a file named basic.json in the current directory.  
 To create a json file from a problem use the command:  
-``` JSHOP2.InternalProblem -r problem  ```
+```java -cp "src\;antlr.jar" JSHOP2.InternalDomain -r problem  ```
 -----------------------------------------------------------------
 The important files and directories in this release of JSHOP2:
 
@@ -96,7 +96,9 @@ propagate only down in the task network.
 International Planning Competition.  
 ./examples/madrts : A very simple version of the MadRTS game.  
 
-```Common Errors: java.lang.ClassNotFoundException: antlr  ```  
+## Common Errors
+
+``` java.lang.ClassNotFoundException: antlr  ```  
 ``` java.lang.NoClassDefFoundError: antlr/CharStreamException  ```  
 These errors indicate that the CLASSPATH environment variable is not set  
 correctly. Make sure it includes the path to the antlr.jar and JSHOP.jar file in the bin
