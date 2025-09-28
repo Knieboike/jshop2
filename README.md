@@ -8,7 +8,7 @@ environment variable to include (replacing JSHOP2_DIRECTORY with the directory
 where JSHOP2 is unzipped):
 
 - in **Windows**  
-  ```JSHOP2_DIRECTORY\bin\antlr.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;. ```
+  ```JSHOP2_DIRECTORY\antlr-2.7.5.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;. ```
 
 - in **UNIX**:  
   ```JSHOP2_DIRECTORY/antlr-2.7.5.jar:JSHOP2_DIRECTORY/bin/JSHOP2.jar:.```
@@ -62,7 +62,8 @@ To create a json file from a planning problem use the command:
 This will create a file named basic.json in the current directory.  
 To create a json file from a problem use the command:  
 ```java -cp "src\;antlr.jar" JSHOP2.InternalDomain -r problem  ```
------------------------------------------------------------------
+
+
 ## The important files and directories in this release of JSHOP2:
 
 ```./make.bat```: The make file for windows.  
