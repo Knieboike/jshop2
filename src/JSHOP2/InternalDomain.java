@@ -163,14 +163,11 @@ public class InternalDomain {
     public int addCompoundTask(String s) {
         int index;
 
-        //-- If this name has not been added before, add it to the end of the
-        //-- Vector and return its index.
         if ((index = compoundTasks.indexOf(s)) == -1) {
             compoundTasks.add(s);
             return compoundTasks.size() - 1;
         }
 
-        //-- Otherwise, just return its index.
         return index;
     }
 
@@ -185,14 +182,11 @@ public class InternalDomain {
     public int addConstant(String s) {
         int index;
 
-        //-- If this name has not been added before, add it to the end of the
-        //-- Vector and return its index.
         if ((index = constants.indexOf(s)) == -1) {
             constants.add(s);
             return constants.size() - 1;
         }
 
-        //-- Otherwise, just return its index.
         return index;
     }
 
@@ -303,44 +297,31 @@ public class InternalDomain {
      * @throws IOException
      */
     public void commandInitialize() throws IOException {
-        //-- To read the text file that stores the names of the constant symbols
-        //-- that appeared in the domain description.
         BufferedReader src;
 
-        //-- Open the file.
         src = new BufferedReader(new FileReader(name + ".txt"));
 
-        //-- Read in the constant symbols.
         constantsSize = readStringArray(src, constants);
 
-        //-- Read in the compound task names.
         readStringArray(src, compoundTasks);
 
-        //-- Read in the primitive task names.
         readStringArray(src, primitiveTasks);
 
-        //-- Read in the variable names (if available)
         try {
             if (variableNames == null) {
                 variableNames = new Vector<String>();
             }
             readStringArray(src, variableNames);
-            System.out.println("DEBUG: Loaded variable names: " + variableNames);
 
-            // Transfer variable names to parser if available
             if (parser != null && variableNames != null && !variableNames.isEmpty()) {
                 parser.setVariableNames(variableNames);
-                System.out.println("DEBUG: Variable names transferred to parser: " + variableNames);
             }
         } catch (Exception e) {
-            System.out.println("DEBUG: No variable names found in .txt file: " + e.getMessage());
-            // If no variable names are available, create empty vector
             if (variableNames == null) {
                 variableNames = new Vector<String>();
             }
         }
 
-        //-- Close the file.
         src.close();
     }
 
@@ -357,21 +338,16 @@ public class InternalDomain {
     public void commandToCode(LinkedList<Vector<Predicate>> states, LinkedList<TaskList> taskLists)
             throws IOException {
 
-        // Store the problem data for later JSON export
         storeProblemData(states, taskLists);
 
-        //-- To hold the String to be written.
         String s = generateProblemCode(states, taskLists);
 
         BufferedWriter dest;
 
-        //-- Open the file with the appropriate name.
         dest = new BufferedWriter(new FileWriter(probName + ".java"));
 
-        //-- Write the String.
         dest.write(s, 0, s.length());
 
-        //-- Close the file.
         dest.close();
     }
 
@@ -387,11 +363,9 @@ public class InternalDomain {
             throws IOException {
         String buff;
 
-        //-- First write the size of the Vector.
         buff = list.size() + endl;
         dest.write(buff, 0, buff.length());
 
-        //-- Then, write the elements of the Vector one-by-one.
         for (int i = 0; i < list.size(); i++) {
             buff = list.get(i) + endl;
             dest.write(buff, 0, buff.length());
@@ -782,29 +756,20 @@ public class InternalDomain {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        System.out.println("DEBUG: Anzahl Argumente: " + args.length);
-        for (int i = 0; i < args.length; i++) {
-            System.out.println("DEBUG: args[" + i + "] = " + args[i]);
-        }
-
         //-- The number of solution plans to be returned.
         int planNo = -1;
 
         if (args.length == 1) {
-            System.out.println("DEBUG: Domain-Modus - erstelle JSON für " + args[0]);
             InternalDomain domain = new InternalDomain(new FileInputStream(new File(args[0])), -1);
             domain.parser.domain();
             domain.close(domain.parser.getVarsMaxSize());
 
-            // JSON-Export über JSONParser:
-            String jsonFile = args[0] + "IR.json";
-            System.out.println("DEBUG: Erstelle JSON-Datei: " + jsonFile);
+            // JSON-Export
+            String jsonFile = args[0] + "IRs.json";
             JSONParser.exportDomainToJson(domain, jsonFile);
-            System.out.println("DEBUG: JSON-Datei erstellt: " + new File(jsonFile).getAbsolutePath());
+            System.out.println("JSON created: " + jsonFile);
 
         } else if (args.length == 2) {
-            System.out.println("DEBUG: Problem-Modus");
-
             if (args[0].equals("-r"))
                 planNo = 1;
             else if (args[0].equals("-ra"))
@@ -817,28 +782,18 @@ public class InternalDomain {
                 }
             }
 
-            System.out.println("DEBUG: planNo = " + planNo);
-
             if (planNo > 0) {
-                // Domain-Datei ableiten
                 String problemFile = args[1];
 
-
                 if (problemFile.contains("problem")) {
-                    System.out.println("DEBUG: Problem-Datei erkannt: " + problemFile);
-
                     // Suche nach bestehenden JSON-Dateien im gleichen Verzeichnis
                     String jsonFile = findExistingJsonFile(problemFile);
 
                     if (jsonFile != null) {
-                        System.out.println("DEBUG: Verwende bestehende JSON-Datei: " + jsonFile);
-
                         // Problem laden und zu bestehender JSON-Datei hinzufügen
                         InternalDomain problem = new InternalDomain(new FileInputStream(new File(problemFile)), planNo);
                         problem.parser.command();
                         problem.close(problem.parser.getVarsMaxSize());
-
-                        System.out.println("DEBUG: Füge Problem zu bestehender JSON hinzu...");
 
                         // Verwende den korrekten JSON-Dateinamen basierend auf der vorhandenen JSON
                         String outputJsonFile = jsonFile.replace(".json", "_with_problem.json");
@@ -851,16 +806,14 @@ public class InternalDomain {
                                     java.nio.file.StandardCopyOption.REPLACE_EXISTING
                             );
                         } catch (IOException e) {
-                            System.err.println("Fehler beim Kopieren der JSON-Datei: " + e.getMessage());
+                            System.err.println("Error copying JSON file: " + e.getMessage());
                         }
 
                         // Füge das Problem zur kopierten JSON-Datei hinzu
                         JSONParser.appendProblemToJson(problem, outputJsonFile);
-                        System.out.println("DEBUG: Problem zu JSON hinzugefügt: " + outputJsonFile);
+                        System.out.println("Problem added to JSON: " + outputJsonFile);
 
                     } else {
-                        System.out.println("DEBUG: Keine bestehende JSON-Datei gefunden, erstelle neue");
-
                         // Erstelle neue JSON-Datei mit dem Namen der Problem-Datei
                         jsonFile = problemFile + ".json";
 
@@ -870,13 +823,11 @@ public class InternalDomain {
                         problem.close(problem.parser.getVarsMaxSize());
 
                         // Neue JSON-Datei nur mit Problem erstellen
-                        System.out.println("DEBUG: Erstelle neue Problem-JSON: " + jsonFile);
                         JSONParser.exportProblemOnlyToJson(problem, jsonFile);
-                        System.out.println("DEBUG: Problem-JSON erstellt");
+                        System.out.println("Problem JSON created: " + jsonFile);
                     }
                 } else {
                     String domainFile = args[1];
-
 
                     String baseName = new File(domainFile).getName();
                     String parentPath = new File(domainFile).getParent();
@@ -892,23 +843,13 @@ public class InternalDomain {
                         domainFile = baseName + "IR";
                     }
 
-                    System.out.println("DEBUG: Domain-Datei: " + baseName);
-                    System.out.println("DEBUG: Problem-Datei: " + args[1]);
-
                     try {
-                        // Erst Domain erstellen
-                        System.out.println("DEBUG: Lade Domain...");
+                        // Erst Domain laden (wird für Problem-Parsing benötigt)
                         InternalDomain domain = new InternalDomain(new FileInputStream(new File(domainFile)), -1);
                         domain.parser.domain();
                         domain.close(domain.parser.getVarsMaxSize());
 
-                        String jsonFile = domainFile + ".json";
-                        System.out.println("DEBUG: Erstelle Domain-JSON: " + jsonFile);
-                        JSONParser.exportDomainToJson(domain, jsonFile);
-                        System.out.println("DEBUG: Domain-JSON erstellt: " + new File(jsonFile).getAbsolutePath());
-
-                        // Dann Problem hinzufügen
-                        System.out.println("DEBUG: Lade Problem...");
+                        // Dann Problem laden
                         InternalDomain problem = new InternalDomain(new FileInputStream(new File(args[1])), planNo);
 
                         // Domain-Name für Problem setzen, damit commandInitialize() die richtige .txt-Datei findet
@@ -917,20 +858,25 @@ public class InternalDomain {
                         // Domain-Informationen laden (Konstanten, Tasks, Variablennamen)
                         try {
                             problem.commandInitialize();
-                            System.out.println("DEBUG: Domain-Informationen geladen für Problem-Parsing");
                         } catch (IOException e) {
-                            System.out.println("DEBUG: Warnung: Konnte Domain-Informationen nicht laden: " + e.getMessage());
+                            System.out.println("Warning: Could not load domain information: " + e.getMessage());
                         }
 
                         problem.parser.command();
                         problem.close(problem.parser.getVarsMaxSize());
 
-                        System.out.println("DEBUG: Füge Problem zu JSON hinzu...");
-                        JSONParser.appendProblemToJson(problem, jsonFile);
-                        System.out.println("DEBUG: Problem zu JSON hinzugefügt");
+                        // JSON-Erstellung: ZUERST Problem exportieren
+                        String inputPath = args[0];
+                        File inputFile = new File(inputPath);
+                        String parentDir = inputFile.getParent();
+                        String jsonFile = (parentDir != null ? parentDir + File.separator : "") + inputFile.getName() + "IR.json";
+
+                        JSONParser.exportProblemToJson(problem, domain, jsonFile);
+                        JSONParser.appendDomainToJson(domain, jsonFile);
+                        System.out.println("Integrated JSON created: " + jsonFile);
 
                     } catch (Exception e) {
-                        System.err.println("DEBUG: Fehler beim JSON-Export: " + e.getMessage());
+                        System.err.println("Error during JSON export: " + e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -945,12 +891,10 @@ public class InternalDomain {
 
             //-- If this is a planning problem, call the 'command' rule in the parser.
             if (args.length == 2 && planNo > 0) {
-                System.out.println("DEBUG: Führe Standard-Problem-Parsing aus...");
                 (new InternalDomain(new FileInputStream(new File(args[1])), planNo)).parser.command();
             }
             //-- If this is a planning domain, call the 'domain' rule in the parser.
             else if (args.length == 1) {
-                System.out.println("DEBUG: Führe Standard-Domain-Parsing aus...");
                 (new InternalDomain(new FileInputStream(new File(args[0])), -1)).parser.domain();
             }
         }
@@ -1059,15 +1003,9 @@ public class InternalDomain {
             directory = new File(".");
         }
 
-        System.out.println("DEBUG: Suche JSON-Dateien in: " + directory.getAbsolutePath());
-
         File[] jsonFiles = directory.listFiles((dir, name) -> name.endsWith(".json"));
 
         if (jsonFiles != null && jsonFiles.length > 0) {
-            for (File jsonFile : jsonFiles) {
-                System.out.println("DEBUG: Gefundene JSON-Datei: " + jsonFile.getName());
-            }
-            // Verwende die erste gefundene JSON-Datei
             return jsonFiles[0].getAbsolutePath();
         }
 

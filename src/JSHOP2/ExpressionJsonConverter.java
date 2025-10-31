@@ -36,9 +36,9 @@ public class ExpressionJsonConverter {
 
         return new JsonBuilder()
             .startObject()
-            .addProperty("type", "atomic")
-            .addProperty("predicate", predicateName)
+            .addProperty("name", predicateName)
             .addRawProperty("parameters", parameters)
+            .addProperty("type", "predicate")
             .endObject()
             .toString();
     }
@@ -50,17 +50,14 @@ public class ExpressionJsonConverter {
                 .addProperty("type", "and");
 
         if (expressions.length == 2) {
-            // Fall: genau zwei Ausdrücke → left/right
             builder.addRawProperty("left", expressionToJson(expressions[0], domain));
             builder.addRawProperty("right", expressionToJson(expressions[1], domain));
         } else {
-            // Fall: mehr als zwei → conjuncts-Array
             builder.addRawProperty("conjuncts", createExpressionArray(expressions, domain));
         }
 
         return builder.endObject().toString();
     }
-
 
     private static String createDisjunctionExpression(LogicalExpressionDisjunction disjunction, InternalDomain domain) {
         JsonBuilder builder = new JsonBuilder()
@@ -92,7 +89,6 @@ public class ExpressionJsonConverter {
     }
 
     private static String createCallExpression(LogicalExpressionCall call, InternalDomain domain) {
-        // Zugriff auf das TermCall Objekt über Reflection oder public Getter
         try {
             java.lang.reflect.Field termField = LogicalExpressionCall.class.getDeclaredField("term");
             termField.setAccessible(true);
@@ -115,38 +111,31 @@ public class ExpressionJsonConverter {
     }
 
     private static String createAssignmentExpression(LogicalExpressionAssignment assignment, InternalDomain domain) {
-
-            return new JsonBuilder()
-                    .startObject()
-                    .addProperty("type", "assignment")
-                    .addProperty("operation", assignment.toString())
-                    .addProperty("function", assignment.getWhichVar())
-                    .addProperty("value", assignment.getWhichVar())
-                    .endObject()
-                    .toString();
-
+        return new JsonBuilder()
+                .startObject()
+                .addProperty("type", "assignment")
+                .addProperty("operation", assignment.toString())
+                .addProperty("function", assignment.getWhichVar())
+                .addProperty("value", assignment.getWhichVar())
+                .endObject()
+                .toString();
     }
 
     private static String createForallExpression(LogicalExpressionForAll forall, InternalDomain domain) {
         try {
-            // Get the premise (condition) and consequence (result) of the forall expression
             LogicalExpression premise = forall.getPremise();
             LogicalExpression consequence = forall.getConsequence();
 
-            // Convert premise to JSON (this is the "expression" part)
             String expressionJson = "null";
             if (premise != null) {
                 expressionJson = expressionToJson(premise, domain);
             }
 
-            // Convert consequence to JSON (this becomes the "predicates" part)
             String predicatesJson = "null";
             if (consequence != null) {
                 predicatesJson = expressionToJson(consequence, domain);
             }
 
-            // Variables extraction - for now use empty array
-            // TODO: Extract actual variables from the forall expression
             String variablesJson = "[]";
 
             return new JsonBuilder()
@@ -155,7 +144,7 @@ public class ExpressionJsonConverter {
                     .addRawProperty("variables", variablesJson)
                     .addRawProperty("expression", expressionJson)
                     .addRawProperty("predicates", predicatesJson)
-                    .addProperty("add_list", "true") // Default to true for now
+                    .addProperty("add_list", "true")
                     .endObject()
                     .toString();
         } catch (Exception e) {
@@ -173,7 +162,11 @@ public class ExpressionJsonConverter {
     }
 
     private static String createNilExpression() {
-        return "[]";
+        return new JsonBuilder()
+            .startObject()
+            .addProperty("type", "nil")
+            .endObject()
+            .toString();
     }
 
     private static String createUnknownExpression() {

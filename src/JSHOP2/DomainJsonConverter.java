@@ -1,5 +1,7 @@
 package JSHOP2;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import static JSHOP2.ParameterJsonConverter.parametersToJsonArray;
@@ -17,9 +19,8 @@ public class DomainJsonConverter {
                 .startObject()
                 .addProperty("name", predicateName)
                 .addRawProperty("parameters", parameters)
-                .addRawProperty("precondition", preconditionToJson(operator.getPre(), domain))
+                .addRawProperty("preconditions", preconditionToJson(operator.getPre(), domain))
                 .addRawProperty("effect", effectsToJson(operator, domain))
-              //  .addRawProperty("cost", termToJson(operator.getCost(), domain)) TODO: Check if cost is needed and there are different costs
                 .endObject()
                 .toString();
     }
@@ -146,12 +147,11 @@ public class DomainJsonConverter {
     private static String effectsToJson(InternalOperator operator, InternalDomain domain) {
         JsonBuilder effectsBuilder = new JsonBuilder().startArray();
 
-        // Delete effects verarbeiten - verwende statischen Zugriff
+
         Vector<?> deleteList = InternalOperator.getDel();
         if (deleteList != null && !deleteList.isEmpty()) {
             String deleteEffects = delAddListToJsonEffects(deleteList, domain, "delete");
             if (deleteEffects != null && !deleteEffects.equals("[]")) {
-                // Parse the array and add each element directly
                 String effectsContent = deleteEffects.substring(1, deleteEffects.length() - 1); // Remove [ and ]
                 if (!effectsContent.trim().isEmpty()) {
                     effectsBuilder.addRawArrayElement(effectsContent);
@@ -159,12 +159,10 @@ public class DomainJsonConverter {
             }
         }
 
-        // Add effects verarbeiten - verwende statischen Zugriff
         Vector<?> addList = InternalOperator.getAdd();
         if (addList != null && !addList.isEmpty()) {
             String addEffects = delAddListToJsonEffects(addList, domain, "add");
             if (addEffects != null && !addEffects.equals("[]")) {
-                // Parse the array and add each element directly
                 String effectsContent = addEffects.substring(1, addEffects.length() - 1); // Remove [ and ]
                 if (!effectsContent.trim().isEmpty()) {
                     effectsBuilder.addRawArrayElement(effectsContent);
@@ -215,7 +213,6 @@ public class DomainJsonConverter {
             case "DelAddProtection":
                 return protectionEffectToJson((DelAddProtection) effect, effectType);
             default:
-                // Unknown effect type
                 return new JsonBuilder()
                         .startObject()
                         .addProperty("type", "unknown")
@@ -231,7 +228,6 @@ public class DomainJsonConverter {
         String parameters = ParameterJsonConverter.parametersToJsonArray(atom.getParam(), domain);
 
         if ("delete".equals(effectType)) {
-            // Für Delete-Effekte verwende "not" Struktur
             return new JsonBuilder()
                     .startObject()
                     .addProperty("type", "not")
@@ -249,7 +245,6 @@ public class DomainJsonConverter {
                     .endObject()
                     .toString();
         } else {
-            // Für Add-Effekte verwende einfache Predicate-Struktur
             return new JsonBuilder()
                     .startObject()
                     .addProperty("type", "predicate")
@@ -261,34 +256,24 @@ public class DomainJsonConverter {
     }
 
     private static String forallEffectToJson(DelAddForAll forallEffect, String effectType) {
-        // Vollständige ForAll-Implementierung mit korrekter Domain-Referenz
         try {
             LogicalExpression expression = forallEffect.getExpression();
             Predicate[] atoms = forallEffect.getAtoms();
-
-            // Variables extrahieren - versuche aus der LogicalExpression zu extrahieren
             JsonBuilder variablesBuilder = new JsonBuilder().startArray();
-            // TODO: Implementiere korrekte Variablenextraktion aus LogicalExpression
-            // Für jetzt verwende einfache Platzhalter-Namen
+
             String variablesJson = variablesBuilder.endArray().toString();
 
-            // Expression JSON generieren mit null domain (wird intern behandelt)
             String expressionJson = "null";
             if (expression != null) {
                 expressionJson = ExpressionJsonConverter.expressionToJson(expression, null);
             }
 
-            // Predicates/Atoms JSON generieren
             JsonBuilder predicatesBuilder = new JsonBuilder().startArray();
             if (atoms != null) {
                 for (Predicate atom : atoms) {
                     String predicateName = "unknown";
-
-                    // Versuche den korrekten Prädikatennamen zu extrahieren
                     try {
                         int headIndex = atom.getHead();
-                        // Da wir keine Domain-Referenz haben, verwende eine generische Benennung
-                        // die später durch post-processing korrigiert werden kann
                         predicateName = "pred_" + headIndex;
                     } catch (Exception e) {
                         predicateName = "unknown_predicate";
@@ -296,15 +281,13 @@ public class DomainJsonConverter {
 
                     String parameters = "[]";
                     try {
-                        // Verwende den ParameterJsonConverter für konsistente Parameter-Extraktion
                         parameters = ParameterJsonConverter.parametersToJsonArray(atom.getParam(), null);
                     } catch (Exception e) {
-                        // Fallback auf leeres Array
+                        // Fall through to default
                     }
 
                     String atomJson;
                     if ("delete".equals(effectType)) {
-                        // Für Delete-Effekte verwende "not" Struktur
                         atomJson = new JsonBuilder()
                                 .startObject()
                                 .addProperty("type", "not")
@@ -322,7 +305,6 @@ public class DomainJsonConverter {
                                 .endObject()
                                 .toString();
                     } else {
-                        // Für Add-Effekte verwende einfache Predicate-Struktur
                         atomJson = new JsonBuilder()
                                 .startObject()
                                 .addProperty("type", "predicate")
@@ -337,7 +319,6 @@ public class DomainJsonConverter {
             }
             String predicatesJson = predicatesBuilder.endArray().toString();
 
-            // Vollständige ForAll-Struktur erstellen - korrigiere die add_list Property
             return new JsonBuilder()
                     .startObject()
                     .addProperty("type", "forall")
@@ -358,7 +339,6 @@ public class DomainJsonConverter {
     }
 
     private static String protectionEffectToJson(DelAddProtection protectionEffect, String effectType) {
-        // Protection-Effekte implementierung
         return new JsonBuilder()
                 .startObject()
                 .addProperty("type", "protection")
@@ -375,22 +355,126 @@ public class DomainJsonConverter {
         return "unknown_" + headIndex;
     }
 
-    // TaskList strukturiert parsen
+    /**
+     * Analyzes the domain and extracts requirements based on used features
+     */
+    public static String extractRequirements(InternalDomain domain) {
+        Set<String> requirements = new HashSet<>();
+
+        // Always include STRIPS as base requirement
+        requirements.add(":S");
+
+        analyzeOperators(domain, requirements);
+
+        analyzeMethods(domain, requirements);
+
+        JsonBuilder builder = new JsonBuilder().startArray();
+        for (String req : requirements) {
+            builder.addArrayElement(req);
+        }
+        return builder.endArray().toString();
+    }
+
+    private static void analyzeOperators(InternalDomain domain, Set<String> requirements) {
+        Vector<InternalOperator> operators = domain.getOperators();
+        if (operators == null) return;
+
+        for (InternalOperator operator : operators) {
+            if (operator.getPre() != null) {
+                analyzePrecondition(operator.getPre(), requirements);
+            }
+            analyzeEffects(operator, requirements);
+        }
+    }
+
+    private static void analyzeMethods(InternalDomain domain, Set<String> requirements) {
+        Vector<InternalMethod> methods = domain.getMethods();
+        if (methods == null) return;
+
+        for (InternalMethod method : methods) {
+            Vector<LogicalPrecondition> preconditions = method.getPres();
+            if (preconditions != null) {
+                for (LogicalPrecondition pre : preconditions) {
+                    analyzePrecondition(pre, requirements);
+                }
+            }
+        }
+    }
+
+    private static void analyzePrecondition(LogicalPrecondition precondition, Set<String> requirements) {
+        if (precondition == null || precondition.getExpression() == null) return;
+
+        analyzeLogicalExpression(precondition.getExpression(), requirements);
+    }
+
+    private static void analyzeLogicalExpression(LogicalExpression expr, Set<String> requirements) {
+        if (expr == null) return;
+
+        if (expr instanceof LogicalExpressionNegation) {
+            requirements.add(":NP");
+            LogicalExpressionNegation negation = (LogicalExpressionNegation) expr;
+            analyzeLogicalExpression(negation.getExpression(), requirements);
+        }
+        else if (expr instanceof LogicalExpressionDisjunction) {
+            requirements.add(":DP");
+            LogicalExpressionDisjunction disjunction = (LogicalExpressionDisjunction) expr;
+            LogicalExpression[] expressions = disjunction.getExpression();
+            if (expressions != null) {
+                for (LogicalExpression e : expressions) {
+                    analyzeLogicalExpression(e, requirements);
+                }
+            }
+        }
+        else if (expr instanceof LogicalExpressionConjunction) {
+            LogicalExpressionConjunction conjunction = (LogicalExpressionConjunction) expr;
+            LogicalExpression[] expressions = conjunction.getExpression();
+            if (expressions != null) {
+                for (LogicalExpression e : expressions) {
+                    analyzeLogicalExpression(e, requirements);
+                }
+            }
+        }
+        else if (expr instanceof LogicalExpressionForAll) {
+            requirements.add(":UP");
+            LogicalExpressionForAll forall = (LogicalExpressionForAll) expr;
+            analyzeLogicalExpression(forall.getPremise(), requirements);
+            analyzeLogicalExpression(forall.getConsequence(), requirements);
+        }
+        else if (expr instanceof LogicalExpressionAssignment) {
+            requirements.add(":E");
+        } else if (expr instanceof LogicalExpressionCall) {
+            requirements.add(":F");
+        }
+    }
+
+    private static void analyzeEffects(InternalOperator operator, Set<String> requirements) {
+        Vector<?> addList = InternalOperator.getAdd();
+        Vector<?> delList = InternalOperator.getDel();
+
+        if (addList != null) {
+            for (Object effect : addList) {
+                if (effect instanceof DelAddForAll) {
+                    requirements.add(":CE");
+                    requirements.add(":UP");
+                }
+            }
+        }
+
+        if (delList != null) {
+            for (Object effect : delList) {
+                if (effect instanceof DelAddForAll) {
+                    requirements.add(":CE");
+                    requirements.add(":UP");
+                }
+            }
+        }
+    }
+
     private static String taskListToJson(TaskList taskList, InternalDomain domain) {
         JsonBuilder builder = new JsonBuilder().startArray();
-//TODO: Currently only empty tasks
+
         try {
-            TaskAtom tasks = taskList.getTask();
-            if (tasks == null) {
-                String emptyJson = new JsonBuilder()
-                        .startObject()
-                        .addProperty("type", "empty")
-                        .endObject()
-                        .toString();
-                builder.addRawArrayElement(emptyJson);
-            } else {
-                builder.addRawArrayElement(taskElementToJson(tasks, domain));
-            }
+            addAllTasksToBuilder(taskList, builder, domain);
         } catch (Exception e) {
             String errorJson = new JsonBuilder()
                     .startObject()
@@ -404,33 +488,74 @@ public class DomainJsonConverter {
         return builder.endArray().toString();
     }
 
+    /**
+     * Recursively extracts all tasks from a TaskList and adds them to the builder
+     */
+    private static void addAllTasksToBuilder(TaskList taskList, JsonBuilder builder, InternalDomain domain) {
+        if (taskList == null || taskList == TaskList.empty) {
+            return;
+        }
+
+        TaskAtom taskAtom = taskList.getTask();
+        if (taskAtom != null) {
+            builder.addRawArrayElement(taskElementToJson(taskAtom, domain));
+            return;
+        }
+
+        if (taskList.subtasks != null && taskList.subtasks.length > 0) {
+            for (TaskList subtask : taskList.subtasks) {
+                if (subtask != null) {
+                    addAllTasksToBuilder(subtask, builder, domain);
+                }
+            }
+        }
+    }
+
     private static String taskElementToJson(Object taskElement, InternalDomain domain) {
         try {
             if (taskElement instanceof Predicate) {
                 Predicate pred = (Predicate) taskElement;
                 String taskName = getTaskName(pred, domain);
-                String parameters = parametersToJsonArray(pred.getParam(), domain);
+                String parameters = ParameterJsonConverter.parametersToJsonArrayForTasks(pred.getParam(), domain);
 
                 return new JsonBuilder()
                         .startObject()
                         .addProperty("name", taskName)
+                        .addProperty("type", "predicate")
                         .addRawProperty("parameters", parameters)
                         .endObject()
                         .toString();
 
             } else if (taskElement instanceof TaskAtom) {
                 TaskAtom atom = (TaskAtom) taskElement;
-                return new JsonBuilder()
-                        .startObject()
-                        .addProperty("name", atom.toString())
-                        .addRawProperty("parameters", "[]")
-                        .endObject()
-                        .toString();
+                Predicate head = atom.getHead();
+
+                if (head != null) {
+                    String taskName = getTaskName(head, domain);
+                    String parameters = ParameterJsonConverter.parametersToJsonArrayForTasks(head.getParam(), domain);
+
+                    return new JsonBuilder()
+                            .startObject()
+                            .addProperty("name", taskName)
+                            .addProperty("type", "predicate")
+                            .addRawProperty("parameters", parameters)
+                            .endObject()
+                            .toString();
+                } else {
+                    return new JsonBuilder()
+                            .startObject()
+                            .addProperty("name", atom.toString())
+                            .addProperty("type", "predicate")
+                            .addRawProperty("parameters", "[]")
+                            .endObject()
+                            .toString();
+                }
 
             } else {
                 return new JsonBuilder()
                         .startObject()
                         .addProperty("name", taskElement.getClass().getSimpleName())
+                        .addProperty("type", "unknown")
                         .addProperty("value", taskElement.toString())
                         .addRawProperty("parameters", "[]")
                         .endObject()
@@ -446,7 +571,6 @@ public class DomainJsonConverter {
         }
     }
 
-    // Task Name extrahieren basierend auf Predicate
     private static String getTaskName(Predicate pred, InternalDomain domain) {
         try {
             int headIndex = pred.getHead();
@@ -454,7 +578,6 @@ public class DomainJsonConverter {
             Vector<String> compoundTasks = domain.getCompoundTasks();
             if (headIndex >= 0 && headIndex < compoundTasks.size()) {
                 String taskName = compoundTasks.get(headIndex);
-                // Remove exclamation mark prefix if present
                 if (taskName.startsWith("!")) {
                     taskName = taskName.substring(1);
                 }
@@ -464,7 +587,6 @@ public class DomainJsonConverter {
             Vector<String> primitiveTasks = domain.getPrimitiveTasks();
             if (headIndex >= 0 && headIndex < primitiveTasks.size()) {
                 String taskName = primitiveTasks.get(headIndex);
-                // Remove exclamation mark prefix if present
                 if (taskName.startsWith("!")) {
                     taskName = taskName.substring(1);
                 }
